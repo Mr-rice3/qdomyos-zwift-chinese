@@ -101,6 +101,9 @@ jobs:
           make install
           cd ../..
 
+      - name: 生成翻译文件
+        run: lrelease qdomyos-zwift.pro
+
       - name: 编译 QZ (4种架构)
         run: |
           qmake -spec android-clang \
