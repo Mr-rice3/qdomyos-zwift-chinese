@@ -133,5 +133,7 @@
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
         <file>WebIntervalsICUAuth.qml</file>
+        <file>fonts/NotoSansSC-VariableFont_wght.ttf</file>
+        <file>translations/qdomyos-zwift_zh_CN.qm</file>
     </qresource>
 </RCC>

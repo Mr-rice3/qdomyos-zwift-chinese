@@ -4,35 +4,35 @@
 #include <stdlib.h>
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-#include <unistd.h> // getuid
 #include "EventHandler.h"
+#include <unistd.h> // getuid
 #endif
 #endif
-#include <QQmlContext>
-#include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
+#include "logwriter.h"
 #include "mainwindow.h"
 #include "qfit.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
-#include <QGuiApplication>
-#include <QFileOpenEvent>
 #include <QEvent>
+#include <QFileOpenEvent>
+#include <QGuiApplication>
+#include <QList>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
 
-#include "mqttpublisher.h"
 #include "androidstatusbar.h"
-#include "fontmanager.h"
 #include "filesearcher.h"
+#include "fontmanager.h"
+#include "mqttpublisher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -49,8 +49,8 @@
 
 #include "osc.h"
 
-#include "handleurl.h"
 #include "authutils.h"
+#include "handleurl.h"
 
 class OAuthCallbackEventFilter : public QObject {
   public:
@@ -215,19 +215,18 @@ void displayHelp() {
     exit(0);
 }
 
-
 #ifdef Q_CC_MSVC
-#include <windows.h>
+#include <cstdio>
 #include <dbghelp.h>
 #include <rtcapi.h>
-#include <cstdio>
+#include <windows.h>
 
 void PrintStack() {
     CONTEXT context = {};
     RtlCaptureContext(&context);
 
     STACKFRAME64 stackFrame = {};
-    stackFrame.AddrPC.Offset = context.Rip;  // Per x64, usa Rip
+    stackFrame.AddrPC.Offset = context.Rip; // Per x64, usa Rip
     stackFrame.AddrPC.Mode = AddrModeFlat;
     stackFrame.AddrFrame.Offset = context.Rbp;
     stackFrame.AddrFrame.Mode = AddrModeFlat;
@@ -239,27 +238,25 @@ void PrintStack() {
 
     SymInitialize(process, NULL, TRUE);
 
-    while (StackWalk64(
-        IMAGE_FILE_MACHINE_AMD64, process, thread, &stackFrame, &context,
-        NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
+    while (StackWalk64(IMAGE_FILE_MACHINE_AMD64, process, thread, &stackFrame, &context, NULL, SymFunctionTableAccess64,
+                       SymGetModuleBase64, NULL)) {
         printf("Address: 0x%llx\n", stackFrame.AddrPC.Offset);
     }
 
     SymCleanup(process);
 }
 
-int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int linenumber, 
-                           const wchar_t* moduleName, const wchar_t* format, ...)
-{
+int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t *filename, int linenumber, const wchar_t *moduleName,
+                                  const wchar_t *format, ...) {
     // Buffer for the formatted error message
     wchar_t errorMessage[512];
     va_list args;
-    
+
     // Format the error message using varargs
     va_start(args, format);
-    vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
+    vswprintf(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), format, args);
     va_end(args);
-    
+
     // Print complete error information
     fwprintf(stderr, L"Runtime Error Check Failed!\n");
     fwprintf(stderr, L"Error Type: %d\n", errorType);
@@ -268,14 +265,14 @@ int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int li
     fwprintf(stderr, L"Module: %ls\n", moduleName ? moduleName : L"Unknown");
     fwprintf(stderr, L"Error Message: %ls\n", errorMessage);
     fwprintf(stderr, L"----------------------------------------\n");
-    
-    #ifdef _DEBUG
-        __debugbreak();  // Break into debugger in debug builds
-    #endif
-  
+
+#ifdef _DEBUG
+    __debugbreak(); // Break into debugger in debug builds
+#endif
+
     PrintStack();
 
-    return 1;  // Return non-zero to indicate error was handled    
+    return 1; // Return non-zero to indicate error was handled
 }
 #endif
 
@@ -334,9 +331,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-horizon-treadmill-7-8"))
-            horizon_treadmill_7_8 = true; 
+            horizon_treadmill_7_8 = true;
         if (!qstrcmp(argv[i], "-horizon-treadmill-force-ftms"))
-            horizon_treadmill_force_ftms = true; 
+            horizon_treadmill_force_ftms = true;
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
         if (!qstrcmp(argv[i], "-proform-perf-300i-treadmill"))
@@ -494,7 +491,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -531,11 +528,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         initializeLogThread();
 
         // Write log in the worker thread
-        QMetaObject::invokeMethod(logWriter, "writeLog",
-                                 Qt::QueuedConnection,
-                                 Q_ARG(QString, path + logfilename),
-                                 Q_ARG(QString, txt));
-
+        QMetaObject::invokeMethod(logWriter, "writeLog", Qt::QueuedConnection, Q_ARG(QString, path + logfilename),
+                                  Q_ARG(QString, txt));
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
@@ -546,9 +540,9 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef Q_CC_MSVC
-  _RTC_SetErrorFuncW(CustomRTCErrorHandler);
+    _RTC_SetErrorFuncW(CustomRTCErrorHandler);
 #endif
-  
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
@@ -598,15 +592,16 @@ int main(int argc, char *argv[]) {
 #endif
 #else
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
-    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
-                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras", "(Landroid/content/Context;)Ljava/lang/String;",
+        QtAndroid::androidContext().object());
     profileName = r.toString();
 #endif
-    
+
     QFileInfo pp(profileName);
     profileName = pp.baseName();
-    
-    if(profileName.count()) {
+
+    if (profileName.count()) {
         if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
             profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
         } else {
@@ -690,7 +685,7 @@ int main(int argc, char *argv[]) {
         qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
-    
+
     // Register custom meta types used in queued invocations
     qRegisterMetaType<SessionLine>("SessionLine");
     qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
@@ -701,7 +696,8 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") &&
+            !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -856,7 +852,7 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
         if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "POST_NOTIFICATIONS denied!";
-    }    
+    }
 #endif
 
     /* test virtual echelon
@@ -872,13 +868,13 @@ int main(int argc, char *argv[]) {
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
-    if(mqtt_host.length() > 0) {
+    if (mqtt_host.length() > 0) {
         new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
     }
 
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
-    if(OSC_ip.length() > 0) {
-        OSC* osc = new OSC(&bl);
+    if (OSC_ip.length() > 0) {
+        OSC *osc = new OSC(&bl);
     }
 
 #ifdef Q_OS_IOS
@@ -893,11 +889,25 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
+
+        int fontId = QFontDatabase::addApplicationFont(":/fonts/NotoSansSC-VariableFont_wght.ttf");
+        if (fontId != -1) {
+            QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
+            app->setFont(QFont(family));
+            qDebug() << "Chinese font loaded:" << family;
+        }
 #endif
+
+        QTranslator translator;
+        if (translator.load(QLocale::Chinese, "qdomyos-zwift", "_", ":/translations")) {
+            app->installTranslator(&translator);
+            qDebug() << "Chinese translation loaded";
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -973,7 +983,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if(eventGearDevice.length())
+    if (eventGearDevice.length())
         new BluetoothHandler(&bl, eventGearDevice);
 #endif
 #endif
