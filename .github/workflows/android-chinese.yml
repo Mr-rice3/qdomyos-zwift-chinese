@@ -111,13 +111,6 @@ jobs:
             'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && \
             make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
 
-      - name: 修复部署配置并注入 OpenSSL
-        run: |
-          QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
-          sed -i "s|\"qt\": \"[^\"]*\"|\"qt\": \"$QT_DIR\"|" src/android-qdomyos-zwift-deployment-settings.json
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
-          cat src/android-qdomyos-zwift-deployment-settings.json
-
       - name: 打包 APK
         run: |
           mkdir -p ${{ github.workspace }}/output/android/
@@ -127,7 +120,6 @@ jobs:
             --output "${{ github.workspace }}/output/android/" \
             --android-platform android-31 \
             --gradle \
-            --aab \
             --verbose
 
       - name: 上传汉化版 APK
