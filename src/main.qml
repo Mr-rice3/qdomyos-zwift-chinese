@@ -572,7 +572,7 @@ ApplicationWindow {
 
     Timer {
         id: popupLicenseAutoClose
-        interval: 120000; running: rootItem.licensePopupVisible; repeat: false
+        interval: 120000; running: false; repeat: false
         onTriggered: popupLicense.close();
     }
 
@@ -581,7 +581,11 @@ ApplicationWindow {
          parent: Overlay.overlay
          enabled: rootItem.licensePopupVisible
          onEnabledChanged: { if(rootItem.licensePopupVisible) popupLicense.open() }
-         onClosed: { Qt.openUrlExternally("https://www.patreon.com/bePatron?u=45290147"); Qt.callLater(Qt.quit); }
+         onClosed: { 
+            // 原始代码是跳转付费并退出，现改为仅关闭，不再强制退出
+            // Qt.openUrlExternally("https://www.patreon.com/bePatron?u=45290147");
+            // Qt.callLater(Qt.quit);
+          }
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
@@ -605,7 +609,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
              width: 570
              height: 220
-             text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+             text: qsTr("没关系，你可以继续用。<br><br>原项目的强制付费行为违反了GPL-3.0协议。<br>协议链接：<br><a href=\"https://gnu.ac.cn/licenses/gpl-3.0.html\">https://gnu.ac.cn/licenses/gpl-3.0.html</a>")
             }
          }
     }

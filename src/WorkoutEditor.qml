@@ -24,7 +24,7 @@ Item {
             if (!port) {
                 return
             }
-            var targetUrl = "http://localhost:" + port + "/workouteditor/index.html"
+            var targetUrl = "http://localhost:" + port + "/workouteditor/index.html?lang=zh"
             if (webView.url !== targetUrl) {
                 webView.url = targetUrl
             }

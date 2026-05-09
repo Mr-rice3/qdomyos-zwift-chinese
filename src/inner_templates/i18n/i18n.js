@@ -1,4 +1,4 @@
-window.i18n = (function() {
+window.i18n = (function () {
     let dictionary = {};
     let currentLang = 'en';
 
@@ -61,13 +61,17 @@ window.i18n = (function() {
     }
 
     async function init() {
+        alert("i18n init start");  // 确认函数被调用
         let lang = new URLSearchParams(location.search).get('lang');
         if (!lang) lang = localStorage.getItem('app_lang');
         if (!lang) lang = navigator.language.split('-')[0];
         if (!lang) lang = 'en';
+        alert("Detected language: " + lang);  // 看实际检测结果
         await loadLanguage(lang);
+        alert("Dictionary keys: " + Object.keys(dictionary).length);  // 看是否加载成功
         translateDOM();
         localStorage.setItem('app_lang', currentLang);
+        alert("Translation done");
     }
 
     return {
